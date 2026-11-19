@@ -82,28 +82,28 @@ sudo certbot --nginx -d example.com -d www.example.com
 **Создать ключ на своём компьютере** (Git Bash или PowerShell):
 
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/thelastdisk_deploy -N "" -C "github-actions-deploy"
+ssh-keygen -t ed25519 -f ~/.ssh/nastyaCOL-deploy -N "" -C "github-actions-deploy"
 ```
 
 Появятся два файла:
-- `~/.ssh/thelastdisk_deploy` — приватная часть, пойдёт в GitHub Secrets. Никуда больше её не копируйте и не кладите в папку проекта.
-- `~/.ssh/thelastdisk_deploy.pub` — публичная часть, пойдёт на сервер.
+- `~/.ssh/nastyaCOL-deploy` — приватная часть, пойдёт в GitHub Secrets. Никуда больше её не копируйте и не кладите в папку проекта.
+- `~/.ssh/nastyaCOL-deploy.pub` — публичная часть, пойдёт на сервер.
 
 **Положить публичную часть на сервер.** Если вы заходите на сервер как root, хватит одной команды:
 
 ```bash
-cat ~/.ssh/thelastdisk_deploy.pub | ssh root@SERVER "mkdir -p /home/deploy/.ssh && cat >> /home/deploy/.ssh/authorized_keys && chown -R deploy:deploy /home/deploy/.ssh && chmod 700 /home/deploy/.ssh && chmod 600 /home/deploy/.ssh/authorized_keys"
+cat ~/.ssh/nastyaCOL-deploy.pub | ssh root@SERVER "mkdir -p /home/deploy/.ssh && cat >> /home/deploy/.ssh/authorized_keys && chown -R deploy:deploy /home/deploy/.ssh && chmod 700 /home/deploy/.ssh && chmod 600 /home/deploy/.ssh/authorized_keys"
 ```
 
 Если заходите под обычным пользователем с `sudo`, сделайте то же самое вручную на сервере:
-откройте `sudo nano /home/deploy/.ssh/authorized_keys`, вставьте одной строкой содержимое `thelastdisk_deploy.pub`,
+откройте `sudo nano /home/deploy/.ssh/authorized_keys`, вставьте одной строкой содержимое `nastyaCOL-deploy.pub`,
 затем выполните `sudo chown -R deploy:deploy /home/deploy/.ssh`, `sudo chmod 700 /home/deploy/.ssh`
 и `sudo chmod 600 /home/deploy/.ssh/authorized_keys`.
 
 **Проверить, что ключ работает.** Команда должна выполниться без запроса пароля:
 
 ```bash
-ssh -i ~/.ssh/thelastdisk_deploy deploy@SERVER "ls -la /var/www/thelastdisk"
+ssh -i ~/.ssh/nastyaCOL-deploy deploy@SERVER "ls -la /var/www/thelastdisk"
 ```
 
 ---
@@ -116,14 +116,14 @@ ssh -i ~/.ssh/thelastdisk_deploy deploy@SERVER "ls -la /var/www/thelastdisk"
 |---|---|
 | `SSH_HOST` | IP или домен сервера |
 | `SSH_USER` | `deploy` |
-| `SSH_KEY` | всё содержимое файла `~/.ssh/thelastdisk_deploy` (без `.pub`), включая строки `-----BEGIN…` и `-----END…` |
+| `SSH_KEY` | всё содержимое файла `~/.ssh/nastyaCOL-deploy` (без `.pub`), включая строки `-----BEGIN…` и `-----END…` |
 | `DEPLOY_PATH` | `/var/www/thelastdisk` |
 | `SSH_PORT` | необязательно: только если SSH на сервере не на порту 22 |
 | `SSH_KNOWN_HOSTS` | необязательно, см. ниже |
 
 Скопировать приватный ключ в буфер обмена:
-- в PowerShell: `Get-Content ~/.ssh/thelastdisk_deploy -Raw | Set-Clipboard`
-- в Git Bash: `cat ~/.ssh/thelastdisk_deploy | clip`
+- в PowerShell: `Get-Content ~/.ssh/nastyaCOL-deploy -Raw | Set-Clipboard`
+- в Git Bash: `cat ~/.ssh/nastyaCOL-deploy | clip`
 
 **`SSH_KNOWN_HOSTS` (необязательно, но надёжнее).** Без него pipeline при каждом запуске заново узнаёт
 отпечаток сервера и верит ему. Если записать отпечаток один раз, подмена сервера будет замечена.
