@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Last Disk — виниловые пластинки, CD и DVD</title>
+  <meta name="description" content="The Last Disk — интернет-магазин виниловых пластинок, CD и DVD дисков. Москва.">
+  <link rel="icon" type="image/png" href="assets/img/logo-wide.png">
+
+  <!-- Шрифты: Michroma (Google Fonts). Bebas Neue Bold с кириллицей подключается в css/style.css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Oswald:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- включаем анимации появления до первой отрисовки (если система не просит «меньше движения») -->
+  <script>
+    if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) && 'IntersectionObserver' in window) {
+      document.documentElement.classList.add('js-anim');
+    }
+  </script>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ ШАПКА (закреплена при прокрутке) ============ -->
+  <header class="header" id="top">
+    <div class="frame header__frame">
+      <a class="header__logo abs" href="#top" aria-label="The Last Disk — на главную">
+        <img src="assets/img/logo-header.png" alt="The Last Disk">
+      </a>
+
+      <nav class="header__nav" aria-label="Основное меню">
+        <a class="nav-link nav-link--about t" href="#about">About</a>
+        <a class="nav-link nav-link--shop t" href="#collections">Shop</a>
+        <a class="nav-link nav-link--catalog t" href="#catalog">Catalog</a>
+        <a class="nav-link nav-link--contact t" href="#contacts">Contact</a>
+      </nav>
+
+      <button class="header__icon header__icon--search abs" type="button" data-action="focus-search" aria-label="Поиск">
+        <img src="assets/img/icon-search.png" alt="">
+      </button>
+      <button class="header__icon header__icon--profile abs" type="button" data-modal-open="profile" aria-label="Личный кабинет">
+        <img src="assets/img/icon-profile.png" alt="">
+      </button>
+      <button class="header__icon header__icon--cart abs" type="button" data-modal-open="cart" aria-label="Корзина">
+        <img src="assets/img/icon-cart.png" alt="">
+        <span class="cart-badge" data-cart-count hidden>0</span>
+      </button>
+
+      <button class="header__burger" type="button" aria-label="Меню" aria-expanded="false" data-action="toggle-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ HERO: сейчас белый фон, потом здесь будет видео ============ -->
+    <section class="hero" aria-label="Поиск по магазину">
+      <div class="frame hero__frame">
+        <!--
+          Видео: положите файл в assets/video/hero.mp4 и раскомментируйте строку ниже.
+          <video class="hero__video" src="assets/video/hero.mp4" autoplay muted loop playsinline></video>
+        -->
+        <form class="search abs" id="search-form" role="search">
+          <label class="visually-hidden" for="search-input">Поиск</label>
+          <input class="search__input" id="search-input" name="q" type="search"
+                 placeholder="Альбом, исполнитель или жанр" autocomplete="off">
+          <button class="search__btn" type="submit" aria-label="Найти">
+            <img src="assets/img/search-btn.png" alt="Поиск">
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ ЖАНРЫ ============ -->
+    <section class="genres" aria-label="Жанры">
+      <div class="frame genres__frame">
+        <ul class="genres__list">
+          <li><button class="genre-btn" type="button" data-filter-genre="rock"><span class="t">Rock</span></button></li>
+          <li><button class="genre-btn" type="button" data-filter-genre="hip-hop"><span class="t">Hip-hop</span></button></li>
+          <li><button class="genre-btn" type="button" data-filter-genre="metal"><span class="t">Metall</span></button></li>
+          <li><button class="genre-btn" type="button" data-filter-genre="electronic"><span class="t">Electronic</span></button></li>
+          <li><button class="genre-btn" type="button" data-filter-genre="rap"><span class="t">Rap</span></button></li>
+          <li><button class="genre-btn" type="button" data-filter-genre="jazz"><span class="t">Jazz</span></button></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ КАТАЛОГ / БАННЕРЫ ============ -->
+    <section class="catalog" id="catalog" aria-label="Каталог">
+      <div class="frame catalog__frame">
+        <a class="catalog__logo abs" href="#top" aria-label="The Last Disk">
+          <img src="assets/img/logo-wide.png" alt="The Last Disk">
+        </a>
+
+        <nav class="catalog__menu" aria-label="Информация">
+          <button class="info-link info-link--delivery" type="button" data-modal-open="delivery"><span class="t">Доставка</span></button>
+          <button class="info-link info-link--services" type="button" data-modal-open="services"><span class="t">Услуги</span></button>
+          <button class="info-link info-link--promo" type="button" data-modal-open="promo"><span class="t">Акции</span></button>
+        </nav>
+
+        <address class="contacts contacts--top">
+          <a class="contacts__row contacts__row--phone" href="tel:+79651450047">
+            <img class="contacts__icon" src="assets/img/icon-phone.png" alt="">
+            <span class="contacts__text t">8 965 145 00 47</span>
+          </a>
+          <a class="contacts__row contacts__row--mail" href="mailto:tigralini@gmail.com">
+            <img class="contacts__icon" src="assets/img/icon-mail.png" alt="">
+            <span class="contacts__text t">tigralini@gmail.com</span>
+          </a>
+        </address>
+
+        <a class="promo promo--catalog abs" href="#collections" data-filter-reset>
+          <img src="assets/img/banner-catalog.png" alt="Слушаем и коллекционируем. Винил, CD, DVD — новые альбомы тебя ждут! В каталог">
+        </a>
+        <a class="promo promo--gift abs" href="#collections" data-modal-open="gift">
+          <img src="assets/img/banner-gift.png" alt="Для подарка близкому. Релизы 2026">
+        </a>
+        <a class="promo promo--vinyl abs" href="#collections" data-filter-format="vinyl">
+          <img src="assets/img/card-vinyl.png" alt="Vinyl — новинки">
+        </a>
+        <a class="promo promo--cd abs" href="#collections" data-filter-format="cd">
+          <img src="assets/img/card-cd.png" alt="CD диск — новинки">
+        </a>
+
+        <p class="catalog__tagline t">Интернет-магазин виниловых пластинок, CD дисков и DVD дисков</p>
+      </div>
+    </section>
+
+    <!-- ============ WELCOME / ЖАНРЫ-ДИСКИ ============ -->
+    <section class="welcome" id="welcome" aria-label="Популярные жанры">
+      <div class="frame welcome__frame">
+        <img class="welcome__glow abs" src="assets/img/bg-red-glow.png" alt="">
+
+        <h2 class="welcome__hello t">Welcome</h2>
+        <h3 class="welcome__choose t">Choose what’s popular...</h3>
+
+        <!-- ROCK -->
+        <a class="genre-disc genre-disc--rock abs" href="#collections" data-filter-genre="rock" aria-label="Rock">
+          <img class="genre-disc__glow" src="assets/img/disc-rock-glow.png" alt="">
+          <img class="genre-disc__img" src="assets/img/disc-rock-cut.png" alt="">
+        </a>
+        <img class="genre-title genre-title--rock abs" src="assets/img/title-rock.png" alt="Rock">
+        <p class="genre-desc genre-desc--rock t">От легендарной классики до<br> тяжёлого метала. Музыка,<br> которая не подстраивается под<br> правила.</p>
+
+        <!-- POP -->
+        <img class="genre-title genre-title--pop abs" src="assets/img/title-pop.png" alt="Pop">
+        <a class="genre-disc genre-disc--pop abs" href="#collections" data-filter-genre="pop" aria-label="Pop">
+          <img class="genre-disc__glow" src="assets/img/disc-pop-glow.png" alt="">
+          <img class="genre-disc__img" src="assets/img/disc-pop-cut.png" alt="">
+        </a>
+        <p class="genre-desc genre-desc--pop t">Музыка, которая заряжает,<br> вдохновляет и остаётся в голове.<br> Самые яркие хиты ждут тебя<br> здесь.</p>
+
+        <!-- METALL -->
+        <a class="genre-disc genre-disc--metal abs" href="#collections" data-filter-genre="metal" aria-label="Metall">
+          <img src="assets/img/disc-metal.png" alt="">
+        </a>
+        <img class="genre-title genre-title--metal abs" src="assets/img/title-metall.png" alt="Metall">
+        <p class="genre-desc genre-desc--metal t">Мощь, хаос и свобода<br> самовыражения. Для тех, кто<br> выбирает звучание без границ.</p>
+
+        <!-- AND OTHERS -->
+        <a class="others" href="#collections" data-filter-reset aria-label="And others — все альбомы">
+          <span class="others__discs">
+            <img class="others__disc others__disc--5 abs" src="assets/img/disc-row-5.png" alt="">
+            <img class="others__disc others__disc--4 abs" src="assets/img/disc-row-4.png" alt="">
+            <img class="others__disc others__disc--3 abs" src="assets/img/disc-row-3.png" alt="">
+            <img class="others__disc others__disc--2 abs" src="assets/img/disc-row-2.png" alt="">
+            <img class="others__disc others__disc--1 abs" src="assets/img/disc-row-1.png" alt="">
+            <img class="others__disc others__disc--0 abs" src="assets/img/disc-row-0.png" alt="">
+          </span>
+          <span class="others__title t">And others...</span>
+          <span class="others__line abs"></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ POPULAR COLLECTIONS (карусель) ============ -->
+    <section class="collections" id="collections" aria-label="Популярные коллекции">
+      <div class="frame collections__frame">
+        <img class="collections__bg abs" src="assets/img/bg-collections.png" alt="">
+
+        <h2 class="collections__title t">Popular collections</h2>
+        <a class="collections__all t" href="#collections" data-filter-reset>View all</a>
+
+        <div class="filter-chip" data-filter-chip hidden>
+          <span data-filter-label></span>
+          <button type="button" data-filter-reset aria-label="Сбросить фильтр">✕</button>
+        </div>
+
+        <button class="carousel-arrow carousel-arrow--prev abs" type="button" data-carousel="prev" aria-label="Назад">
+          <img src="assets/img/arrow-left.png" alt="">
+        </button>
+        <button class="carousel-arrow carousel-arrow--next abs" type="button" data-carousel="next" aria-label="Вперёд">
+          <img src="assets/img/arrow-right.png" alt="">
+        </button>
+
+        <div class="carousel" data-carousel-track tabindex="0" aria-label="Альбомы">
+          <!-- карточки рендерятся из js/products.js -->
+        </div>
+        <p class="carousel-empty t" data-carousel-empty hidden>
+          Скоро в продаже. <button type="button" data-filter-reset>Показать все альбомы</button>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ О НАС ============ -->
+    <section class="about" id="about" aria-label="О магазине">
+      <div class="frame about__frame">
+        <div class="about__banner abs">
+          <h2 class="about__title t">The Last Disc — музыка, которая остаётся.</h2>
+          <div class="about__text t">
+            <p>История The Last Disc началась в сентябре 2026 года с идеи переосмыслить<br> культуру физических музыкальных носителей и вернуть им место в<br> современном мире.</p>
+            <p>Наш магазин объединяет виниловые пластинки, CD- и DVD-диски, сочетая<br> эстетику прошлых десятилетий с музыкальными предпочтениями нового<br> поколения. Для нас это не просто носители, а часть музыкальной культуры,<br> возможность сохранить любимые альбомы и создать собственную<br> коллекцию.</p>
+          </div>
+          <p class="about__final t">The Last Disc — место, где ностальгия встречается с настоящим, а<br> музыка не теряет своей ценности со временем.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ ПОДВАЛ ============ -->
+  <footer class="footer" id="contacts">
+    <div class="frame footer__frame">
+      <a class="footer__logo abs" href="#top" aria-label="The Last Disk — наверх">
+        <img src="assets/img/logo-footer.png" alt="The Last Disk">
+      </a>
+
+      <address class="contacts contacts--footer">
+        <a class="contacts__row contacts__row--phone" href="tel:+79651450047">
+          <img class="contacts__icon" src="assets/img/icon-phone.png" alt="">
+          <span class="contacts__text t">8 965 145 00 47</span>
+        </a>
+        <a class="contacts__row contacts__row--mail" href="mailto:tigralini@gmail.com">
+          <img class="contacts__icon" src="assets/img/icon-mail.png" alt="">
+          <span class="contacts__text t">tigralini@gmail.com</span>
+        </a>
+        <span class="contacts__row contacts__row--address">
+          <img class="contacts__icon contacts__icon--pin" src="assets/img/icon-pin.png" alt="">
+          <span class="footer__address t">г. Москва,<br> Баумнский район 6/1</span>
+        </span>
+      </address>
+
+      <nav class="footer__col footer__col--catalog" aria-label="Каталог">
+        <h3 class="footer__heading t">Каталог</h3>
+        <ul class="footer__links">
+          <li><a class="t" href="#collections" data-filter-format="vinyl">Виниловые пластинки</a></li>
+          <li><a class="t" href="#collections" data-filter-format="cd">CD диски</a></li>
+          <li><a class="t" href="#collections" data-filter-format="dvd">DVD диски</a></li>
+          <li><a class="t" href="#collections" data-filter-format="accessories">Аксессуары</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer__col footer__col--about" aria-label="О нас">
+        <h3 class="footer__heading footer__heading--about t">О нас</h3>
+        <ul class="footer__links">
+          <li><a class="t" href="#promo" data-modal-open="promo">Акции</a></li>
+          <li><a class="t" href="#contacts">Контакты</a></li>
+          <li><a class="t" href="#about">Наш магазин</a></li>
+        </ul>
+      </nav>
+
+      <a class="footer__tg t" href="https://t.me/gegoklll" target="_blank" rel="noopener">Telegramm<br> @gegoklll</a>
+      <a class="footer__qr abs" href="https://t.me/gegoklll" target="_blank" rel="noopener" aria-label="Telegram @gegoklll — QR-код">
+        <img src="assets/img/qr-telegram.png" alt="QR-код Telegram">
+      </a>
+
+      <p class="footer__copy t">© 2026 thelastdisk.ru — магазин виниловых пластинок.<br>
+        <a href="#offer" data-modal-open="offer">Оферта</a> <a href="#privacy" data-modal-open="privacy">Политика конфиденциальности</a>.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ ВСПЛЫВАЮЩИЕ ОКНА ============ -->
+<div class="modal" data-modal="cart" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel modal__panel--cart" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="cart-title">Корзина</h2>
+    <div data-cart-body></div>
+  </div>
+</div>
+
+<div class="modal" data-modal="profile" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="profile-title">Личный кабинет</h2>
+    <form class="form" data-form="login">
+      <label class="form__field"><span>E-mail</span><input type="email" name="email" required autocomplete="email"></label>
+      <label class="form__field"><span>Пароль</span><input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn" type="submit">Войти</button>
+      <p class="form__note" data-form-note hidden></p>
+    </form>
+  </div>
+</div>
+
+<div class="modal" data-modal="delivery" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="delivery-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="delivery-title">Доставка</h2>
+    <div class="modal__text">
+      <p>Курьером по Москве — 1–2 дня.</p>
+      <p>Почтой и транспортными компаниями по России — 3–10 дней.</p>
+      <p>Самовывоз из магазина: г. Москва, Баумнский район 6/1.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" data-modal="services" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="services-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="services-title">Услуги</h2>
+    <div class="modal__text">
+      <p>Подбор пластинок и дисков под ваш вкус.</p>
+      <p>Подарочная упаковка.</p>
+      <p>Предзаказ релизов, которых пока нет в наличии.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" data-modal="promo" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="promo-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="promo-title">Акции</h2>
+    <div class="modal__text">
+      <p>Альбом <b>Neon Amnesia</b> от The Last Disk — бесплатно.</p>
+      <p>Следите за новыми акциями в нашем Telegram: <a href="https://t.me/gegoklll" target="_blank" rel="noopener">@gegoklll</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" data-modal="gift" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="gift-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="gift-title">Для подарка близкому</h2>
+    <div class="modal__text">
+      <p>Поможем выбрать пластинку в подарок и красиво её упакуем.</p>
+      <p>Напишите нам: <a href="mailto:tigralini@gmail.com">tigralini@gmail.com</a> или позвоните: <a href="tel:+79651450047">8 965 145 00 47</a>.</p>
+    </div>
+    <a class="btn" href="#collections" data-filter-reset data-modal-close>Смотреть релизы 2026</a>
+  </div>
+</div>
+
+<div class="modal" data-modal="offer" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="offer-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="offer-title">Оферта</h2>
+    <div class="modal__text"><p>Текст публичной оферты появится здесь.</p></div>
+  </div>
+</div>
+
+<div class="modal" data-modal="privacy" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="privacy-title">Политика конфиденциальности</h2>
+    <div class="modal__text"><p>Текст политики конфиденциальности появится здесь.</p></div>
+  </div>
+</div>
+
+<div class="toast" data-toast role="status" aria-live="polite" hidden></div>
+
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

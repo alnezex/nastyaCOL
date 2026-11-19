@@ -1,0 +1,15 @@
+# Системный мусор
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+
+# Ключи и секреты не должны попадать в репозиторий
+*.pem
+*.key
+id_*
+.env
