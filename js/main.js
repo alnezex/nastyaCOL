@@ -1,10 +1,11 @@
 /* =====================================================================
-   THE LAST DISK — логика сайта
-   - карусель «Popular collections» (рендер из js/products.js, стрелки)
-   - фильтры по жанру / формату и поиск
-   - корзина (хранится в localStorage), оформление заказа
-   - всплывающие окна, мобильное меню, уведомления
-   Анимаций пока нет — только состояния и плавная прокрутка.
+   THE LAST DISK — общая логика всех страниц
+   - корзина, избранное, недавно просмотренные, заказы (всё в localStorage)
+   - всплывающие окна, в том числе карточка товара
+   - поиск, мобильное меню, уведомления, анимация шапки
+   - карусель «Popular collections» на главной (если она есть на странице)
+   Страницы каталога и профиля дорисовывают своё в js/catalog.js и
+   js/profile.js через объект window.TLD (см. конец файла).
    ===================================================================== */
 (function () {
   'use strict';
@@ -17,8 +18,12 @@
   PRODUCTS.forEach(function (p) { byId[p.id] = p; });
 
   var GENRES = { rock: 'Rock', pop: 'Pop', metal: 'Metall', 'hip-hop': 'Hip-hop', electronic: 'Electronic', rap: 'Rap', jazz: 'Jazz' };
-  var FORMATS = { vinyl: 'Виниловые пластинки', cd: 'CD диски', dvd: 'DVD диски', accessories: 'Аксессуары' };
+  var FORMATS = { vinyl: 'Виниловые пластинки', cd: 'CD диски', dvd: 'DVD диски' };
+  var FORMAT_SHORT = { vinyl: 'Винил', cd: 'CD', dvd: 'DVD' };
   var DEFAULT_POS = { x: 34, y: 52, w: 575 };
+  var RECENT_MAX = 6;
+
+  var track = $('[data-carousel-track]'); // карусель есть только на главной
 
   function formatPrice(n) {
     return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -28,6 +33,32 @@
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
+  }
+  function oneLine(s) { return String(s).replace(/\s*\n\s*/g, ' '); }
+  function fullTitle(p) { return p.title + (p.edition ? ' — ' + p.edition : ''); }
+
+  /* ------------------------------------------------------------------
+     Хранилище в браузере. В приватном режиме запись может не работать —
+     тогда всё живёт до перезагрузки страницы.
+     ------------------------------------------------------------------ */
+  function load(key, fallback) {
+    try {
+      var v = JSON.parse(localStorage.getItem(key));
+      return v === null || v === undefined ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* приватный режим */ }
+  }
+  // сообщаем страницам, что данные поменялись: what = cart | favs | recent | orders
+  function emit(what) {
+    var ev;
+    try { ev = new CustomEvent('tld:change', { detail: { what: what } }); }
+    catch (e) { ev = document.createEvent('CustomEvent'); ev.initCustomEvent('tld:change', false, false, { what: what }); }
+    document.dispatchEvent(ev);
+  }
+  function knownIds(list) {
+    return Array.isArray(list) ? list.filter(function (id, i) { return byId[id] && list.indexOf(id) === i; }) : [];
   }
 
   /* ------------------------------------------------------------------
@@ -50,14 +81,10 @@
   var cart = readCart();
 
   function readCart() {
-    try {
-      var data = JSON.parse(localStorage.getItem(CART_KEY) || '{}');
-      Object.keys(data).forEach(function (id) { if (!byId[id] || !(data[id] > 0)) delete data[id]; });
-      return data;
-    } catch (e) { return {}; }
-  }
-  function saveCart() {
-    try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) { /* приватный режим */ }
+    var data = load(CART_KEY, {});
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+    Object.keys(data).forEach(function (id) { if (!byId[id] || !(data[id] > 0)) delete data[id]; });
+    return data;
   }
   function cartCount() {
     return Object.keys(cart).reduce(function (sum, id) { return sum + cart[id]; }, 0);
@@ -67,25 +94,30 @@
   }
   function setQty(id, qty) {
     if (qty > 0) cart[id] = qty; else delete cart[id];
-    saveCart();
+    save(CART_KEY, cart);
     updateCartUI();
+    emit('cart');
   }
   function addToCart(id) {
     setQty(id, (cart[id] || 0) + 1);
     toast('«' + byId[id].title + '» в корзине');
   }
 
+  // кнопки «В корзину» на всех страницах: data-cart-add="id", подпись — в <span>
   function updateCartUI() {
     var n = cartCount();
     $$('[data-cart-count]').forEach(function (el) {
       el.textContent = n;
       el.hidden = n === 0;
     });
-    $$('.card__btn').forEach(function (btn) {
-      var inCart = !!cart[btn.dataset.id];
+    $$('[data-cart-add]').forEach(function (btn) {
+      var p = byId[btn.dataset.cartAdd];
+      if (!p) return;
+      var inCart = !!cart[p.id];
+      var label = btn.querySelector('span') || btn;
       btn.classList.toggle('is-added', inCart);
-      btn.querySelector('.t').textContent = inCart ? 'В корзине' : 'В корзину';
-      btn.setAttribute('aria-label', (inCart ? 'Открыть корзину: ' : 'Добавить в корзину: ') + byId[btn.dataset.id].title);
+      label.textContent = inCart ? 'В корзине' : 'В корзину';
+      btn.setAttribute('aria-label', (inCart ? 'Открыть корзину: ' : 'Добавить в корзину: ') + fullTitle(p));
     });
     if (isOpen('cart')) renderCart();
   }
@@ -100,14 +132,17 @@
     if (cartView === 'done') {
       cartBody.innerHTML =
         '<p>Спасибо! Заказ принят — мы свяжемся с вами, чтобы подтвердить детали.</p>' +
-        '<button class="btn" type="button" data-modal-close>Продолжить покупки</button>';
+        '<div class="cart-actions">' +
+          '<button class="btn" type="button" data-modal-close>Продолжить покупки</button>' +
+          '<a class="btn btn--ghost" href="profile.html">Мои заказы</a>' +
+        '</div>';
       return;
     }
 
     if (!ids.length) {
       cartBody.innerHTML =
         '<p class="cart-empty">Корзина пока пустая.</p>' +
-        '<a class="btn" href="#collections" data-modal-close>Перейти к альбомам</a>';
+        '<a class="btn" href="' + (track ? '#collections' : 'catalog.html') + '" data-modal-close>Перейти к альбомам</a>';
       return;
     }
 
@@ -131,7 +166,7 @@
       return '<li class="cart-item">' +
         '<img src="' + p.img + '" alt="">' +
         '<div>' +
-          '<div class="cart-item__title">' + escapeHTML(p.title) + '</div>' +
+          '<div class="cart-item__title">' + escapeHTML(fullTitle(p)) + '</div>' +
           '<div class="cart-item__artist">' + escapeHTML(p.artist) + '</div>' +
           '<div class="cart-item__price">' + priceLabel(p) + (p.price ? ' ₽' : '') + '</div>' +
         '</div>' +
@@ -163,13 +198,108 @@
     cartBody.addEventListener('submit', function (e) {
       if (!e.target.matches('[data-form="checkout"]')) return;
       e.preventDefault();
-      // Здесь будет отправка заказа на сервер.
+      // Здесь будет отправка заказа на сервер. Пока заказ сохраняется только
+      // в браузере покупателя — чтобы он появился в «Моих заказах».
+      saveOrder(e.target.elements.phone.value);
       cart = {};
-      saveCart();
+      save(CART_KEY, cart);
       cartView = 'done';
       updateCartUI();
+      emit('cart');
       renderCart();
     });
+  }
+
+  /* ------------------------------------------------------------------
+     Заказы (история в профиле)
+     ------------------------------------------------------------------ */
+  var ORDERS_KEY = 'tld-orders';
+  var PHONE_KEY = 'tld-phone';
+  var orders = load(ORDERS_KEY, []);
+  if (!Array.isArray(orders)) orders = [];
+
+  function saveOrder(phone) {
+    orders.unshift({
+      n: orders.length + 1,
+      date: new Date().toISOString(),
+      items: Object.keys(cart).map(function (id) { return { id: id, qty: cart[id], price: byId[id].price }; }),
+      total: cartTotal()
+    });
+    save(ORDERS_KEY, orders);
+    phone = String(phone || '').trim();
+    if (phone) save(PHONE_KEY, phone);
+    emit('orders');
+  }
+
+  /* ------------------------------------------------------------------
+     Избранное и недавно просмотренные
+     ------------------------------------------------------------------ */
+  var FAVS_KEY = 'tld-favs';
+  var RECENT_KEY = 'tld-recent';
+  var favs = knownIds(load(FAVS_KEY, []));
+  var recent = knownIds(load(RECENT_KEY, [])).slice(0, RECENT_MAX);
+
+  function isFav(id) { return favs.indexOf(id) !== -1; }
+  function toggleFav(id) {
+    var on = !isFav(id);
+    favs = on ? [id].concat(favs) : favs.filter(function (x) { return x !== id; });
+    save(FAVS_KEY, favs);
+    updateFavUI();
+    toast(on ? '«' + byId[id].title + '» в избранном' : 'Убрано из избранного');
+    emit('favs');
+  }
+  // сердечки на всех страницах: data-fav="id"
+  function updateFavUI() {
+    $$('[data-fav]').forEach(function (btn) {
+      var p = byId[btn.dataset.fav];
+      if (!p) return;
+      var on = isFav(p.id);
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-pressed', String(on));
+      btn.setAttribute('aria-label', (on ? 'Убрать из избранного: ' : 'В избранное: ') + fullTitle(p));
+    });
+  }
+  function pushRecent(id) {
+    recent = [id].concat(recent.filter(function (x) { return x !== id; })).slice(0, RECENT_MAX);
+    save(RECENT_KEY, recent);
+    emit('recent');
+  }
+  // после того как страница перерисовала карточки — выставить состояния кнопок
+  function refreshButtons() { updateCartUI(); updateFavUI(); }
+
+  function favButtonHTML(p, extraClass) {
+    return '<button class="fav' + (extraClass ? ' ' + extraClass : '') + '" type="button" data-fav="' + p.id + '">' +
+      '<img class="fav__off" src="assets/img/heart-off.png" alt="">' +
+      '<img class="fav__on" src="assets/img/heart-on.png" alt="">' +
+    '</button>';
+  }
+
+  /* ------------------------------------------------------------------
+     Карточка товара (окно). Открывается по data-product-open="id"
+     и попадает в «Недавно смотрели».
+     ------------------------------------------------------------------ */
+  var productBody = $('[data-product-body]');
+  function renderProduct(id) {
+    var p = byId[id];
+    if (!productBody || !p) return;
+    var genres = p.genres.map(function (g) { return GENRES[g] || g; }).join(', ');
+    productBody.innerHTML =
+      '<div class="product">' +
+        '<div class="product__img"><img src="' + p.img + '" alt="' + escapeHTML(p.title + ' — ' + oneLine(p.artist)) + '"></div>' +
+        '<div class="product__info">' +
+          '<p class="product__meta">' + escapeHTML(FORMAT_SHORT[p.format] || '') + ' · ' + escapeHTML(genres) + '</p>' +
+          '<h2 class="modal__title product__title" id="product-title">' + escapeHTML(p.title) + '</h2>' +
+          (p.edition ? '<p class="product__edition">' + escapeHTML(p.edition) + '</p>' : '') +
+          '<p class="product__artist">' + escapeHTML(oneLine(p.artist)) + '</p>' +
+          '<p class="product__price">' + priceLabel(p) + (p.price ? ' ₽' : '') + '</p>' +
+          (p.gift ? '<p class="product__note">Подарок от магазина: бесплатно с любой другой покупкой.</p>' : '') +
+          '<div class="product__actions">' +
+            '<button class="btn" type="button" data-cart-add="' + p.id + '"><span>В корзину</span></button>' +
+            favButtonHTML(p, 'fav--modal') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    refreshButtons();
   }
 
   /* ------------------------------------------------------------------
@@ -185,13 +315,15 @@
     var f = root.querySelector('input, textarea, button:not(.modal__close), a[href]') || root.querySelector('button');
     if (f) f.focus({ preventScroll: true });
   }
-  function openModal(name) {
+  function openModal(name, arg) {
     var m = $('[data-modal="' + name + '"]');
     if (!m) return;
+    var wasOpen = $$('[data-modal]').some(function (x) { return !x.hidden; });
     closeAllModals(true);
     closeMenu();
-    lastFocus = document.activeElement;
-    if (name === 'cart') { cartView = 'list'; renderCart(); }
+    if (!wasOpen) lastFocus = document.activeElement; // из окна в окно — фокус вернётся к исходной кнопке
+    if (name === 'cart') { cartView = arg === 'checkout' && cartCount() ? 'checkout' : 'list'; renderCart(); }
+    if (name === 'product') { renderProduct(arg); pushRecent(arg); }
     m.hidden = false;
     document.body.classList.add('is-locked');
     focusFirst(m.querySelector('.modal__panel'));
@@ -200,7 +332,7 @@
     var any = false;
     $$('[data-modal]').forEach(function (m) { if (!m.hidden) { m.hidden = true; any = true; } });
     document.body.classList.remove('is-locked');
-    if (any && !silent && lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    if (any && !silent && lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
   }
 
   document.addEventListener('keydown', function (e) {
@@ -216,20 +348,9 @@
     }
   });
 
-  var loginForm = $('[data-form="login"]');
-  if (loginForm) {
-    loginForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var note = $('[data-form-note]', loginForm);
-      note.textContent = 'Личный кабинет заработает после подключения сервера.';
-      note.hidden = false;
-    });
-  }
-
   /* ------------------------------------------------------------------
-     Карусель + фильтры
+     Карусель + фильтры (только главная)
      ------------------------------------------------------------------ */
-  var track = $('[data-carousel-track]');
   var emptyEl = $('[data-carousel-empty]');
   var chip = $('[data-filter-chip]');
   var chipLabel = $('[data-filter-label]');
@@ -238,33 +359,52 @@
   var currentFilter = null;
 
   function cardHTML(p) {
-    var pos = p.pos || DEFAULT_POS;
     var multi = p.artist.indexOf('\n') !== -1;
+    var alt = escapeHTML(p.title + ' — ' + oneLine(p.artist));
+    var img = p.pos
+      ? '<img class="card__img" src="' + p.img + '" alt="' + alt + '"' +
+          ' style="--x:' + p.pos.x + ';--y:' + p.pos.y + ';--w:' + p.pos.w + '" loading="lazy">'
+      : '<img class="card__img card__img--fit" src="' + p.img + '" alt="' + alt + '" loading="lazy">';
     return '<article class="card" data-id="' + p.id + '">' +
-      '<img class="card__img" src="' + p.img + '" alt="' + escapeHTML(p.title + ' — ' + p.artist.replace('\n', ' ')) + '"' +
-        ' style="--x:' + pos.x + ';--y:' + pos.y + ';--w:' + pos.w + '" loading="lazy">' +
+      img +
+      '<button class="card__open" type="button" data-product-open="' + p.id + '" aria-label="Подробнее: ' + escapeHTML(fullTitle(p)) + '"></button>' +
       '<h3 class="card__title t">' + escapeHTML(p.title) + '</h3>' +
       '<p class="card__artist t' + (multi ? ' is-multiline' : '') + '">' + escapeHTML(p.artist) + '</p>' +
       '<p class="card__price t">' + priceLabel(p) + '</p>' +
-      '<button class="card__btn" type="button" data-id="' + p.id + '"><span class="t">В корзину</span></button>' +
+      '<button class="card__btn" type="button" data-cart-add="' + p.id + '"><span class="t">В корзину</span></button>' +
     '</article>';
+  }
+
+  // поиск: каждое слово запроса должно найтись в названии, исполнителе, жанрах или формате
+  function matchesQuery(p, q) {
+    var hay = [p.title, p.edition || '', p.artist,
+      p.genres.map(function (g) { return (GENRES[g] || '') + ' ' + g; }).join(' '),
+      (FORMATS[p.format] || '') + ' ' + (FORMAT_SHORT[p.format] || '') + ' ' + p.format
+    ].join(' ').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ');
+    return String(q).toLowerCase().replace(/ё/g, 'е').split(/\s+/).filter(Boolean).every(function (w) {
+      return hay.indexOf(w) !== -1;
+    });
   }
 
   function matches(p, f) {
     if (!f) return true;
     if (f.type === 'genre') return p.genres.indexOf(f.value) !== -1;
-    if (f.type === 'format') return p.formats.indexOf(f.value) !== -1;
-    if (f.type === 'query') {
-      var hay = [p.title, p.artist, p.genres.map(function (g) { return GENRES[g] + ' ' + g; }).join(' '),
-        p.formats.map(function (x) { return FORMATS[x] + ' ' + x; }).join(' ')].join(' ').toLowerCase().replace(/\s+/g, ' ');
-      return f.value.toLowerCase().split(/\s+/).every(function (w) { return hay.indexOf(w) !== -1; });
-    }
+    if (f.type === 'query') return matchesQuery(p, f.value);
     return true;
+  }
+
+  // без фильтра карусель показывает «популярное», с фильтром — все подходящие товары
+  function carouselList() {
+    if (!currentFilter) {
+      return PRODUCTS.filter(function (p) { return p.popular; })
+        .sort(function (a, b) { return a.popular - b.popular; });
+    }
+    return PRODUCTS.filter(function (p) { return matches(p, currentFilter); });
   }
 
   function renderCards() {
     if (!track) return;
-    var list = PRODUCTS.filter(function (p) { return matches(p, currentFilter); });
+    var list = carouselList();
     track.innerHTML = list.map(cardHTML).join('');
     track.scrollLeft = 0;
     if (emptyEl) emptyEl.hidden = list.length > 0;
@@ -294,6 +434,7 @@
 
   // длинные названия уменьшаются, чтобы влезть в карточку
   function fitTitles() {
+    if (!track) return;
     var u = parseFloat(getComputedStyle(track).getPropertyValue('--u')) || 1;
     $$('.card__title', track).forEach(function (el) {
       el.style.fontSize = '';
@@ -335,16 +476,11 @@
       if (e.key === 'ArrowRight') { e.preventDefault(); slide(1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); slide(-1); }
     });
-    track.addEventListener('click', function (e) {
-      var btn = e.target.closest('.card__btn');
-      if (!btn) return;
-      if (cart[btn.dataset.id]) openModal('cart');
-      else addToCart(btn.dataset.id);
-    });
   }
 
   /* ------------------------------------------------------------------
-     Поиск
+     Поиск. На главной фильтрует карусель, в каталоге — полки каталога
+     (TLD.onSearch из js/catalog.js), на остальных страницах ведёт в каталог.
      ------------------------------------------------------------------ */
   var searchForm = $('#search-form');
   var searchInput = $('#search-input');
@@ -352,10 +488,14 @@
     searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
       var q = searchInput.value.trim();
-      setFilter(q ? { type: 'query', value: q, label: 'Поиск: ' + q } : null, true);
+      if (track) setFilter(q ? { type: 'query', value: q, label: 'Поиск: ' + q } : null, true);
+      else if (TLD.onSearch) TLD.onSearch(q);
+      else location.href = 'catalog.html' + (q ? '?q=' + encodeURIComponent(q) : '');
     });
     searchInput.addEventListener('search', function () {
-      if (!searchInput.value && currentFilter && currentFilter.type === 'query') setFilter(null, false);
+      if (searchInput.value) return;
+      if (track && currentFilter && currentFilter.type === 'query') setFilter(null, false);
+      else if (!track && TLD.onSearch) TLD.onSearch('');
     });
   }
 
@@ -379,10 +519,18 @@
      Общий обработчик кликов (data-атрибуты в разметке)
      ------------------------------------------------------------------ */
   document.addEventListener('click', function (e) {
-    var el = e.target.closest('[data-modal-open], [data-modal-close], [data-filter-genre], [data-filter-format], [data-filter-reset], [data-action], .header__nav a');
+    var el = e.target.closest('[data-modal-open], [data-modal-close], [data-filter-genre], [data-filter-reset], [data-action], [data-cart-add], [data-fav], [data-product-open], .header__nav a');
     if (!el) return;
 
     if (el.matches('.header__nav a')) closeMenu();
+
+    if (el.dataset.cartAdd) {
+      if (cart[el.dataset.cartAdd]) openModal('cart');
+      else addToCart(el.dataset.cartAdd);
+      return;
+    }
+    if (el.dataset.fav) { toggleFav(el.dataset.fav); return; }
+    if (el.dataset.productOpen) { openModal('product', el.dataset.productOpen); return; }
 
     if (el.hasAttribute('data-modal-close')) {
       closeAllModals();
@@ -391,7 +539,7 @@
 
     if (el.dataset.modalOpen) {
       e.preventDefault();
-      openModal(el.dataset.modalOpen);
+      openModal(el.dataset.modalOpen, el.dataset.modalArg);
       return;
     }
 
@@ -402,33 +550,35 @@
       setFilter({ type: 'genre', value: g, label: GENRES[g] || g }, !isLink);
       return;
     }
-    if (el.dataset.filterFormat) {
-      var f = el.dataset.filterFormat;
-      setFilter({ type: 'format', value: f, label: FORMATS[f] || f }, !isLink);
-      return;
-    }
     if (el.hasAttribute('data-filter-reset')) {
       if (searchInput && currentFilter && currentFilter.type === 'query') searchInput.value = '';
       setFilter(null, !isLink);
       return;
     }
 
-    if (el.dataset.action === 'focus-search') {
+    var action = el.dataset.action;
+    if (action === 'focus-search') {
       closeMenu();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (searchInput) searchInput.focus({ preventScroll: true });
     }
-    if (el.dataset.action === 'toggle-menu') toggleMenu();
+    if (action === 'toggle-menu') toggleMenu();
+    if (action === 'scroll-top') window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (action === 'soon') { e.preventDefault(); toast((el.dataset.soon || 'Раздел') + ' скоро появятся в продаже'); }
   });
 
   /* ------------------------------------------------------------------
-     Анимации: шапка «отдаляется» при прокрутке, блоки появляются
+     Анимации: шапка «отдаляется» при прокрутке, кнопка «наверх»,
+     блоки главной появляются при прокрутке
      ------------------------------------------------------------------ */
-  if (header) {
-    var updateHeader = function () { header.classList.toggle('is-scrolled', window.scrollY > 30); };
-    window.addEventListener('scroll', updateHeader, { passive: true });
-    updateHeader();
-  }
+  var toTop = $('[data-to-top]');
+  var onScroll = function () {
+    var y = window.scrollY;
+    if (header) header.classList.toggle('is-scrolled', y > 30);
+    if (toTop) toTop.classList.toggle('is-visible', y > 900);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduceMotion && 'IntersectionObserver' in window) {
@@ -459,8 +609,36 @@
   }
 
   /* ------------------------------------------------------------------
+     API для страниц каталога и профиля
+     ------------------------------------------------------------------ */
+  var TLD = window.TLD = {
+    PRODUCTS: PRODUCTS,
+    byId: byId,
+    GENRES: GENRES,
+    FORMAT_SHORT: FORMAT_SHORT,
+    formatPrice: formatPrice,
+    priceLabel: priceLabel,
+    escapeHTML: escapeHTML,
+    oneLine: oneLine,
+    fullTitle: fullTitle,
+    matchesQuery: matchesQuery,
+    favButtonHTML: favButtonHTML,
+    toast: toast,
+    openModal: openModal,
+    refreshButtons: refreshButtons,
+    cart: function () { return cart; },
+    cartTotal: cartTotal,
+    favs: function () { return favs.slice(); },
+    recent: function () { return recent.slice(); },
+    orders: function () { return orders.slice(); },
+    phone: function () { return load(PHONE_KEY, ''); },
+    onSearch: null // каталог подставляет сюда свой поиск
+  };
+
+  /* ------------------------------------------------------------------
      Старт
      ------------------------------------------------------------------ */
   renderCards();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
+  refreshButtons();
+  if (track && document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
 })();

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Каталог — The Last Disk</title>
+  <meta name="description" content="Каталог The Last Disk: виниловые пластинки, CD и DVD диски. Москва.">
+  <link rel="icon" type="image/png" href="assets/img/logo-wide.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Oswald:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ ШАПКА ============ -->
+  <header class="header header--inner" id="top">
+    <div class="frame header__frame">
+      <a class="header__logo abs" href="index.html" aria-label="The Last Disk — на главную">
+        <img src="assets/img/logo-header.png" alt="The Last Disk">
+      </a>
+
+      <nav class="header__nav" aria-label="Основное меню">
+        <a class="nav-link nav-link--about t" href="index.html#about">About</a>
+        <a class="nav-link nav-link--shop t" href="index.html#collections">Shop</a>
+        <a class="nav-link nav-link--catalog t" href="catalog.html" aria-current="page">Catalog</a>
+        <a class="nav-link nav-link--contact t" href="#contacts">Contact</a>
+      </nav>
+
+      <button class="header__icon header__icon--search abs is-current" type="button" data-action="focus-search" aria-label="Поиск">
+        <img src="assets/img/icon-search.png" alt="">
+      </button>
+      <a class="header__icon header__icon--profile abs" href="profile.html" aria-label="Личный кабинет">
+        <img src="assets/img/icon-profile.png" alt="">
+      </a>
+      <button class="header__icon header__icon--cart abs" type="button" data-modal-open="cart" aria-label="Корзина">
+        <img src="assets/img/icon-cart.png" alt="">
+        <span class="cart-badge" data-cart-count hidden>0</span>
+      </button>
+
+      <button class="header__burger" type="button" aria-label="Меню" aria-expanded="false" data-action="toggle-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="catalog-page" data-catalog>
+      <div class="frame catalog-page__frame">
+        <form class="search search--inner search--light" id="search-form" role="search">
+          <label class="visually-hidden" for="search-input">Поиск по каталогу</label>
+          <input class="search__input" id="search-input" name="q" type="search"
+                 placeholder="Исполнитель или альбом" autocomplete="off">
+          <button class="search__btn" type="submit" aria-label="Найти">
+            <img src="assets/img/search-btn-light.png" alt="Поиск">
+          </button>
+        </form>
+
+        <div class="cat-head">
+          <nav class="breadcrumbs t" aria-label="Вы здесь"><a href="index.html">Главная</a> / <span aria-current="page">Каталог</span></nav>
+          <h1 class="cat-head__title t">Каталог</h1>
+          <div class="cat-chips" data-catalog-chips hidden></div>
+          <a class="fav-link" href="profile.html#favorites">
+            <img src="assets/img/icon-heart-black.png" alt="">
+            <span>Избранное</span>
+          </a>
+        </div>
+
+        <!-- Полки. Панель у каждой своя, но фильтры и сортировка общие.
+             Карточки рисует js/catalog.js из js/products.js -->
+        <section class="shelf" id="vinyl" data-shelf="vinyl" aria-label="Виниловые пластинки">
+          <div class="shelf__bar">
+            <button class="bar-btn bar-btn--filters" type="button" data-catalog-pop="filters" aria-expanded="false" aria-haspopup="dialog">
+              <span>Фильтры</span><span class="bar-btn__count" data-filter-count hidden></span>
+            </button>
+            <button class="bar-btn bar-btn--sort" type="button" data-catalog-pop="sort" aria-expanded="false" aria-haspopup="dialog">
+              <span data-sort-label>По умолчанию</span>
+            </button>
+            <nav class="shelf__tabs" aria-label="Разделы каталога">
+              <a class="shelf__tab shelf__tab--vinyl is-current" href="#vinyl" aria-current="true">Винил</a>
+              <a class="shelf__tab shelf__tab--cd" href="#cd">CD</a>
+              <a class="shelf__tab shelf__tab--dvd" href="#dvd">DVD</a>
+            </nav>
+          </div>
+          <div class="shelf__grid" data-shelf-grid></div>
+          <p class="shelf__empty" data-shelf-empty hidden>В этом разделе ничего не нашлось. <button type="button" data-catalog-reset>Сбросить фильтры</button></p>
+          <button class="more" type="button" data-shelf-more hidden>листать дальше</button>
+        </section>
+
+        <section class="shelf" id="cd" data-shelf="cd" aria-labelledby="shelf-cd">
+          <h2 class="shelf__title t" id="shelf-cd">CD</h2>
+          <div class="shelf__bar">
+            <button class="bar-btn bar-btn--filters" type="button" data-catalog-pop="filters" aria-expanded="false" aria-haspopup="dialog">
+              <span>Фильтры</span><span class="bar-btn__count" data-filter-count hidden></span>
+            </button>
+            <button class="bar-btn bar-btn--sort" type="button" data-catalog-pop="sort" aria-expanded="false" aria-haspopup="dialog">
+              <span data-sort-label>По умолчанию</span>
+            </button>
+            <nav class="shelf__tabs" aria-label="Разделы каталога">
+              <a class="shelf__tab shelf__tab--vinyl" href="#vinyl">Винил</a>
+              <a class="shelf__tab shelf__tab--cd is-current" href="#cd" aria-current="true">CD</a>
+              <a class="shelf__tab shelf__tab--dvd" href="#dvd">DVD</a>
+            </nav>
+          </div>
+          <div class="shelf__grid" data-shelf-grid></div>
+          <p class="shelf__empty" data-shelf-empty hidden>В этом разделе ничего не нашлось. <button type="button" data-catalog-reset>Сбросить фильтры</button></p>
+          <button class="more" type="button" data-shelf-more hidden>листать дальше</button>
+        </section>
+
+        <section class="shelf" id="dvd" data-shelf="dvd" aria-labelledby="shelf-dvd">
+          <h2 class="shelf__title t" id="shelf-dvd">DVD</h2>
+          <div class="shelf__bar">
+            <button class="bar-btn bar-btn--filters" type="button" data-catalog-pop="filters" aria-expanded="false" aria-haspopup="dialog">
+              <span>Фильтры</span><span class="bar-btn__count" data-filter-count hidden></span>
+            </button>
+            <button class="bar-btn bar-btn--sort" type="button" data-catalog-pop="sort" aria-expanded="false" aria-haspopup="dialog">
+              <span data-sort-label>По умолчанию</span>
+            </button>
+            <nav class="shelf__tabs" aria-label="Разделы каталога">
+              <a class="shelf__tab shelf__tab--vinyl" href="#vinyl">Винил</a>
+              <a class="shelf__tab shelf__tab--cd" href="#cd">CD</a>
+              <a class="shelf__tab shelf__tab--dvd is-current" href="#dvd" aria-current="true">DVD</a>
+            </nav>
+          </div>
+          <div class="shelf__grid" data-shelf-grid></div>
+          <p class="shelf__empty" data-shelf-empty hidden>В этом разделе ничего не нашлось. <button type="button" data-catalog-reset>Сбросить фильтры</button></p>
+          <button class="more" type="button" data-shelf-more hidden>листать дальше</button>
+        </section>
+
+        <!-- окошко фильтров / сортировки: js/catalog.js переносит его под нажатую кнопку -->
+        <div class="popover" data-popover role="dialog" hidden></div>
+      </div>
+    </div>
+
+    <button class="to-top" type="button" data-action="scroll-top" data-to-top aria-label="Наверх">
+      <img src="assets/img/btn-up.png" alt="">
+    </button>
+  </main>
+
+  <!-- ============ ПОДВАЛ ============ -->
+  <footer class="footer footer--ruled" id="contacts">
+    <div class="frame footer__frame">
+      <a class="footer__logo abs" href="index.html" aria-label="The Last Disk — на главную">
+        <img src="assets/img/logo-footer.png" alt="The Last Disk">
+      </a>
+
+      <address class="contacts contacts--footer">
+        <a class="contacts__row contacts__row--phone" href="tel:+79651450047">
+          <img class="contacts__icon" src="assets/img/icon-phone.png" alt="">
+          <span class="contacts__text t">8 965 145 00 47</span>
+        </a>
+        <a class="contacts__row contacts__row--mail" href="mailto:tigralini@gmail.com">
+          <img class="contacts__icon" src="assets/img/icon-mail.png" alt="">
+          <span class="contacts__text t">tigralini@gmail.com</span>
+        </a>
+        <span class="contacts__row contacts__row--address">
+          <img class="contacts__icon contacts__icon--pin" src="assets/img/icon-pin.png" alt="">
+          <span class="footer__address t">г. Москва,<br> Баумнский район 6/1</span>
+        </span>
+      </address>
+
+      <nav class="footer__col footer__col--catalog" aria-label="Каталог">
+        <h3 class="footer__heading t">Каталог</h3>
+        <ul class="footer__links">
+          <li><a class="t" href="#vinyl">Виниловые пластинки</a></li>
+          <li><a class="t" href="#cd">CD диски</a></li>
+          <li><a class="t" href="#dvd">DVD диски</a></li>
+          <li><a class="t" href="#" data-action="soon" data-soon="Аксессуары">Аксессуары</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer__col footer__col--about" aria-label="О нас">
+        <h3 class="footer__heading footer__heading--about t">О нас</h3>
+        <ul class="footer__links">
+          <li><a class="t" href="#promo" data-modal-open="promo">Акции</a></li>
+          <li><a class="t" href="#contacts">Контакты</a></li>
+          <li><a class="t" href="index.html#about">Наш магазин</a></li>
+        </ul>
+      </nav>
+
+      <a class="footer__tg t" href="https://t.me/gegoklll" target="_blank" rel="noopener">Telegramm<br> @gegoklll</a>
+      <a class="footer__qr abs" href="https://t.me/gegoklll" target="_blank" rel="noopener" aria-label="Telegram @gegoklll — QR-код">
+        <img src="assets/img/qr-telegram.png" alt="QR-код Telegram">
+      </a>
+
+      <p class="footer__copy t">© 2026 thelastdisk.ru — магазин виниловых пластинок.<br>
+        <a href="#offer" data-modal-open="offer">Оферта</a> <a href="#privacy" data-modal-open="privacy">Политика конфиденциальности</a>.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ ВСПЛЫВАЮЩИЕ ОКНА ============ -->
+<div class="modal" data-modal="cart" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel modal__panel--cart" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="cart-title">Корзина</h2>
+    <div data-cart-body></div>
+  </div>
+</div>
+
+<div class="modal" data-modal="product" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel modal__panel--product" role="dialog" aria-modal="true" aria-labelledby="product-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <div data-product-body></div>
+  </div>
+</div>
+
+<div class="modal" data-modal="promo" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="promo-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="promo-title">Акции</h2>
+    <div class="modal__text">
+      <p>Альбом <b>Neon Amnesia</b> от The Last Disk — бесплатно.</p>
+      <p>Следите за новыми акциями в нашем Telegram: <a href="https://t.me/gegoklll" target="_blank" rel="noopener">@gegoklll</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" data-modal="offer" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="offer-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="offer-title">Оферта</h2>
+    <div class="modal__text"><p>Текст публичной оферты появится здесь.</p></div>
+  </div>
+</div>
+
+<div class="modal" data-modal="privacy" hidden>
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+    <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
+    <h2 class="modal__title" id="privacy-title">Политика конфиденциальности</h2>
+    <div class="modal__text"><p>Текст политики конфиденциальности появится здесь.</p></div>
+  </div>
+</div>
+
+<div class="toast" data-toast role="status" aria-live="polite" hidden></div>
+
+<script src="js/products.js"></script>
+<script src="js/main.js"></script>
+<script src="js/catalog.js"></script>
+</body>
+</html>

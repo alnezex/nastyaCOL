@@ -32,16 +32,16 @@
       <nav class="header__nav" aria-label="Основное меню">
         <a class="nav-link nav-link--about t" href="#about">About</a>
         <a class="nav-link nav-link--shop t" href="#collections">Shop</a>
-        <a class="nav-link nav-link--catalog t" href="#catalog">Catalog</a>
+        <a class="nav-link nav-link--catalog t" href="catalog.html">Catalog</a>
         <a class="nav-link nav-link--contact t" href="#contacts">Contact</a>
       </nav>
 
       <button class="header__icon header__icon--search abs" type="button" data-action="focus-search" aria-label="Поиск">
         <img src="assets/img/icon-search.png" alt="">
       </button>
-      <button class="header__icon header__icon--profile abs" type="button" data-modal-open="profile" aria-label="Личный кабинет">
+      <a class="header__icon header__icon--profile abs" href="profile.html" aria-label="Личный кабинет">
         <img src="assets/img/icon-profile.png" alt="">
-      </button>
+      </a>
       <button class="header__icon header__icon--cart abs" type="button" data-modal-open="cart" aria-label="Корзина">
         <img src="assets/img/icon-cart.png" alt="">
         <span class="cart-badge" data-cart-count hidden>0</span>
@@ -110,16 +110,16 @@
           </a>
         </address>
 
-        <a class="promo promo--catalog abs" href="#collections" data-filter-reset>
+        <a class="promo promo--catalog abs" href="catalog.html">
           <img src="assets/img/banner-catalog.png" alt="Слушаем и коллекционируем. Винил, CD, DVD — новые альбомы тебя ждут! В каталог">
         </a>
         <a class="promo promo--gift abs" href="#collections" data-modal-open="gift">
           <img src="assets/img/banner-gift.png" alt="Для подарка близкому. Релизы 2026">
         </a>
-        <a class="promo promo--vinyl abs" href="#collections" data-filter-format="vinyl">
+        <a class="promo promo--vinyl abs" href="catalog.html#vinyl">
           <img src="assets/img/card-vinyl.png" alt="Vinyl — новинки">
         </a>
-        <a class="promo promo--cd abs" href="#collections" data-filter-format="cd">
+        <a class="promo promo--cd abs" href="catalog.html#cd">
           <img src="assets/img/card-cd.png" alt="CD диск — новинки">
         </a>
 
@@ -159,7 +159,7 @@
         <p class="genre-desc genre-desc--metal t">Мощь, хаос и свобода<br> самовыражения. Для тех, кто<br> выбирает звучание без границ.</p>
 
         <!-- AND OTHERS -->
-        <a class="others" href="#collections" data-filter-reset aria-label="And others — все альбомы">
+        <a class="others" href="catalog.html" aria-label="And others — весь каталог">
           <span class="others__discs">
             <img class="others__disc others__disc--5 abs" src="assets/img/disc-row-5.png" alt="">
             <img class="others__disc others__disc--4 abs" src="assets/img/disc-row-4.png" alt="">
@@ -180,7 +180,7 @@
         <img class="collections__bg abs" src="assets/img/bg-collections.png" alt="">
 
         <h2 class="collections__title t">Popular collections</h2>
-        <a class="collections__all t" href="#collections" data-filter-reset>View all</a>
+        <a class="collections__all t" href="catalog.html">View all</a>
 
         <div class="filter-chip" data-filter-chip hidden>
           <span data-filter-label></span>
@@ -243,10 +243,10 @@
       <nav class="footer__col footer__col--catalog" aria-label="Каталог">
         <h3 class="footer__heading t">Каталог</h3>
         <ul class="footer__links">
-          <li><a class="t" href="#collections" data-filter-format="vinyl">Виниловые пластинки</a></li>
-          <li><a class="t" href="#collections" data-filter-format="cd">CD диски</a></li>
-          <li><a class="t" href="#collections" data-filter-format="dvd">DVD диски</a></li>
-          <li><a class="t" href="#collections" data-filter-format="accessories">Аксессуары</a></li>
+          <li><a class="t" href="catalog.html#vinyl">Виниловые пластинки</a></li>
+          <li><a class="t" href="catalog.html#cd">CD диски</a></li>
+          <li><a class="t" href="catalog.html#dvd">DVD диски</a></li>
+          <li><a class="t" href="#" data-action="soon" data-soon="Аксессуары">Аксессуары</a></li>
         </ul>
       </nav>
 
@@ -280,17 +280,11 @@
   </div>
 </div>
 
-<div class="modal" data-modal="profile" hidden>
+<div class="modal" data-modal="product" hidden>
   <div class="modal__backdrop" data-modal-close></div>
-  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+  <div class="modal__panel modal__panel--product" role="dialog" aria-modal="true" aria-labelledby="product-title">
     <button class="modal__close" type="button" data-modal-close aria-label="Закрыть">✕</button>
-    <h2 class="modal__title" id="profile-title">Личный кабинет</h2>
-    <form class="form" data-form="login">
-      <label class="form__field"><span>E-mail</span><input type="email" name="email" required autocomplete="email"></label>
-      <label class="form__field"><span>Пароль</span><input type="password" name="password" required autocomplete="current-password"></label>
-      <button class="btn" type="submit">Войти</button>
-      <p class="form__note" data-form-note hidden></p>
-    </form>
+    <div data-product-body></div>
   </div>
 </div>
 

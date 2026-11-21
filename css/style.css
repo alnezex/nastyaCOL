@@ -483,6 +483,10 @@ a.contacts__row:hover .contacts__text { color: var(--red); }
   pointer-events: none;
 }
 .card__img { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: calc(var(--w) * var(--u)); height: auto; }
+/* обложки без координат из макета (CD, DVD) просто вписываются в карточку */
+.card__img--fit { left: calc(95 * var(--u)); top: calc(60 * var(--u)); width: calc(440 * var(--u)); height: calc(430 * var(--u)); object-fit: contain; }
+/* прозрачная кнопка поверх обложки — открывает карточку товара */
+.card__open { position: absolute; left: calc(20 * var(--u)); right: calc(20 * var(--u)); top: calc(20 * var(--u)); height: calc(480 * var(--u)); cursor: pointer; }
 .card__title,
 .card__artist,
 .card__price {
@@ -699,6 +703,34 @@ a.contacts__row:hover .contacts__text { color: var(--red); }
 .btn:hover { background: var(--black); color: var(--white); }
 .btn--ghost { background: transparent; color: var(--white); }
 .btn--ghost:hover { background: var(--white); color: var(--black); }
+.btn.is-added { background: var(--green); border-color: var(--green); color: var(--black); }
+
+/* сердечко «в избранное» (data-fav): серое — выключено, красное — включено */
+.fav { position: relative; display: block; flex: none; width: 31px; aspect-ratio: 189 / 173; }
+.fav img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .2s ease, scale .25s cubic-bezier(.2, .8, .2, 1.4); }
+.fav__on { opacity: 0; scale: .5; }
+.fav.is-on .fav__on { opacity: 1; scale: 1; }
+.fav.is-on .fav__off { opacity: 0; }
+.fav:hover .fav__off { scale: 1.12; }
+.fav--modal { width: 54px; }
+
+/* окно «карточка товара» */
+.modal__panel--product { width: min(860px, 100%); }
+.product { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: 28px; align-items: center; }
+.product__img { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; padding: 16px; background: var(--white); }
+.product__img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.product__meta { font-family: var(--f-michroma); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--gray); }
+.product__title { margin: 12px 0 0; padding-right: 0; }
+.product__edition { margin-top: 4px; font-family: var(--f-bebas); font-size: 28px; line-height: 1; text-transform: uppercase; color: var(--gray-light); }
+.product__artist { margin-top: 12px; font-family: var(--f-michroma); font-size: 15px; }
+.product__price { margin-top: 18px; font-family: var(--f-michroma); font-size: 28px; line-height: 1; }
+.product__note { margin-top: 12px; color: var(--green); }
+.product__actions { display: flex; align-items: center; gap: 20px; margin-top: 24px; }
+.product__actions .btn { margin-top: 0; }
+@media (max-width: 640px) {
+  .product { grid-template-columns: 1fr; gap: 20px; }
+  .product__img { width: min(100%, 300px); }
+}
 
 .form { display: grid; gap: 14px; }
 .form__field { display: grid; gap: 6px; }
