@@ -607,9 +607,8 @@
     }
 
     var action = el.dataset.action;
-    if (action === 'focus-search') {
+    if (action === 'focus-search') { // лупа в шапке каталога: каталог уже открыт — просто к строке поиска
       closeMenu();
-      if (floatSearch) { openSearch(); return; } // на главной поиск плавающий — просто раскрываем его
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (searchInput) searchInput.focus({ preventScroll: true });
     }
@@ -692,5 +691,11 @@
      ------------------------------------------------------------------ */
   renderCards();
   refreshButtons();
+  // лупа в шапке других страниц ведёт на catalog.html#search — ставим курсор в поиск
+  // и убираем #search из адреса, чтобы при обновлении страницы не прыгало
+  if (location.hash === '#search' && searchInput && !floatSearch) {
+    searchInput.focus({ preventScroll: true });
+    if (window.history && history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+  }
   if (track && document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
 })();
