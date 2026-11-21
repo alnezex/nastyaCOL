@@ -219,6 +219,62 @@ section[id], footer[id] { scroll-margin-top: calc(var(--header-h) * var(--u)); }
 .search__btn img { width: 100%; height: 100%; }
 .search__btn:hover img { filter: saturate(1.6) brightness(.95); }
 
+/* плавающий поиск главной: кнопка в правом нижнем углу экрана, поле выезжает влево.
+   Размеры в обычных px (с запасом для телефонов), чтобы кнопку было легко нажать */
+.float-search {
+  --fs-h: clamp(52px, calc(79 * var(--u)), 79px);
+  position: fixed;
+  z-index: 45;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  height: var(--fs-h);
+  border-radius: 999px;
+  transition: opacity .35s ease;
+}
+.float-search::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--pill);
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .25);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+.float-search.is-open::before { opacity: 1; }
+.float-search__input {
+  position: relative;
+  width: 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 999px 0 0 999px;
+  background: transparent;
+  font-family: var(--f-michroma);
+  font-size: clamp(14px, calc(22 * var(--u)), 20px);
+  color: var(--black);
+  outline: none;
+  opacity: 0;
+  transition: width .5s cubic-bezier(.2, .8, .2, 1), padding .5s cubic-bezier(.2, .8, .2, 1), opacity .25s ease;
+}
+.float-search__input::placeholder { color: var(--pill); opacity: .7; }
+.float-search__input::-webkit-search-cancel-button { filter: grayscale(1); }
+.float-search.is-open .float-search__input {
+  width: min(620px, calc(100vw - 48px - var(--fs-h) * 2.57));
+  padding: 0 12px 0 26px;
+  opacity: 1;
+}
+.float-search__btn { position: relative; flex: none; height: 100%; aspect-ratio: 203 / 79; border-radius: 999px; }
+.float-search__btn img { width: 100%; height: 100%; transition: filter .3s ease; }
+.float-search__btn:hover img { filter: saturate(1.6) brightness(.95); }
+/* когда страница прокручена, свёрнутая кнопка полупрозрачная и не мешает */
+.float-search.is-dim:not(.is-open):not(:hover):not(:focus-within) { opacity: .5; }
+
 /* =====================================================================
    ЖАНРЫ (чёрная полоса с кнопками)
    ===================================================================== */

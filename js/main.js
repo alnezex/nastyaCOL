@@ -336,7 +336,11 @@
   }
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeAllModals(); closeMenu(); }
+    if (e.key === 'Escape') {
+      if (floatSearch && floatSearch.contains(document.activeElement)) closeSearch(true);
+      closeAllModals();
+      closeMenu();
+    }
     if (e.key === 'Tab') {
       var open = $$('[data-modal]').filter(function (m) { return !m.hidden; })[0];
       if (!open) return;
@@ -484,13 +488,59 @@
      ------------------------------------------------------------------ */
   var searchForm = $('#search-form');
   var searchInput = $('#search-input');
+
+  // Плавающий поиск главной: свёрнут в кнопку в правом нижнем углу,
+  // по нажатию поле выезжает влево, после поиска сворачивается обратно.
+  var floatSearch = $('[data-float-search]');
+  var floatBtn = floatSearch && $('.float-search__btn', floatSearch);
+
+  function isSearchOpen() { return !!floatSearch && floatSearch.classList.contains('is-open'); }
+  function openSearch() {
+    if (!floatSearch) return;
+    closeMenu();
+    floatSearch.classList.add('is-open');
+    floatBtn.setAttribute('aria-expanded', 'true');
+    floatBtn.setAttribute('aria-label', 'Найти');
+    searchInput.tabIndex = 0;
+    searchInput.focus({ preventScroll: true });
+  }
+  function closeSearch(focusButton) {
+    if (!isSearchOpen()) return;
+    floatSearch.classList.remove('is-open');
+    floatBtn.setAttribute('aria-expanded', 'false');
+    floatBtn.setAttribute('aria-label', 'Открыть поиск');
+    searchInput.tabIndex = -1;
+    if (focusButton) floatBtn.focus({ preventScroll: true });
+    else if (floatSearch.contains(document.activeElement)) document.activeElement.blur();
+  }
+  if (floatSearch) {
+    floatBtn.addEventListener('click', function (e) {
+      if (!isSearchOpen()) { e.preventDefault(); openSearch(); return; }
+      if (!searchInput.value.trim()) { e.preventDefault(); closeSearch(true); }
+      // в поле есть текст — кнопка просто отправляет форму
+    });
+    // нажали мимо поиска — сворачиваем
+    document.addEventListener('pointerdown', function (e) {
+      if (isSearchOpen() && !floatSearch.contains(e.target)) closeSearch();
+    });
+    // ушли из поиска клавишей Tab — тоже сворачиваем
+    // (relatedTarget пустой при клике по кнопке в Safari — тогда не трогаем)
+    floatSearch.addEventListener('focusout', function (e) {
+      if (e.relatedTarget && !floatSearch.contains(e.relatedTarget)) closeSearch();
+    });
+  }
+
   if (searchForm) {
     searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
       var q = searchInput.value.trim();
-      if (track) setFilter(q ? { type: 'query', value: q, label: 'Поиск: ' + q } : null, true);
+      if (track) {
+        if (q || !floatSearch) setFilter(q ? { type: 'query', value: q, label: 'Поиск: ' + q } : null, true);
+        else if (currentFilter && currentFilter.type === 'query') setFilter(null, false);
+      }
       else if (TLD.onSearch) TLD.onSearch(q);
       else location.href = 'catalog.html' + (q ? '?q=' + encodeURIComponent(q) : '');
+      if (floatSearch) closeSearch(!q);
     });
     searchInput.addEventListener('search', function () {
       if (searchInput.value) return;
@@ -559,6 +609,7 @@
     var action = el.dataset.action;
     if (action === 'focus-search') {
       closeMenu();
+      if (floatSearch) { openSearch(); return; } // на главной поиск плавающий — просто раскрываем его
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (searchInput) searchInput.focus({ preventScroll: true });
     }
@@ -576,6 +627,7 @@
     var y = window.scrollY;
     if (header) header.classList.toggle('is-scrolled', y > 30);
     if (toTop) toTop.classList.toggle('is-visible', y > 900);
+    if (floatSearch) floatSearch.classList.toggle('is-dim', y > 200);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();

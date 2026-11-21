@@ -3,8 +3,9 @@
    Меню слева переключает экраны:
      КАБИНЕТ   — карточка профиля и «Мои заказы» (заказы / скидки / корзина)
      ИЗБРАННОЕ — избранное и последние 6 открытых товаров
-     КОРЗИНА   — кабинет с открытой вкладкой «Корзина»
+     КОРЗИНА   — открывает обычное окно корзины (его делает js/main.js)
    Адрес помнит экран: profile.html#favorites, #cart, #discounts.
+   Глаз в карточке профиля поворачивается зрачком за курсором.
    Сервера пока нет: заказы, избранное и телефон хранятся в браузере
    (их сохраняет js/main.js), поэтому кабинет у каждого свой.
    ===================================================================== */
@@ -32,8 +33,7 @@
     if (nextTab) tab = nextTab;
     $$('[data-view]', root).forEach(function (el) { el.hidden = el.dataset.view !== view; });
     $$('[data-account-view]', root).forEach(function (btn) {
-      var key = btn.dataset.accountView;
-      var active = key === 'favorites' ? view === 'favorites' : view === 'cabinet' && (key === 'cart') === (tab === 'cart');
+      var active = btn.dataset.accountView === view;
       btn.classList.toggle('is-active', active);
       if (active) btn.setAttribute('aria-current', 'page'); else btn.removeAttribute('aria-current');
     });
@@ -184,10 +184,7 @@
     if (!el) return;
     e.preventDefault();
     if (el.dataset.accountView) {
-      var v = el.dataset.accountView;
-      if (v === 'cart') setView('cabinet', 'cart', 'orders');
-      else if (v === 'favorites') setView('favorites', null, 'top');
-      else setView('cabinet', tab === 'cart' ? 'orders' : null, 'top');
+      setView(el.dataset.accountView, null, 'top');
       return;
     }
     var nextTab = el.dataset.accountTab;
@@ -221,6 +218,34 @@
     var h = readHash();
     setView(h.view, h.tab);
   });
+
+  /* ------------------------------------------------------------------
+     Глаз «наблюдает»: стоит на месте и плавно поворачивается зрачком
+     к курсору. Только для мыши и если в системе не выключена анимация.
+     ------------------------------------------------------------------ */
+  var eye = $('.profile-card__eye', root);
+  var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (eye && !calm) {
+    var PUPIL = -1.5;      // куда смотрит зрачок на самой картинке, градусы (0 — вправо)
+    var EASE = 0.12;       // плавность: доля пути, которую глаз проходит за кадр
+    var angle = 0, target = 0, frame = 0;
+    var turn = function () {
+      var diff = ((target - angle) % 360 + 540) % 360 - 180; // кратчайший поворот
+      angle += diff * EASE;
+      eye.style.rotate = angle.toFixed(2) + 'deg';
+      frame = Math.abs(diff) > 0.2 ? requestAnimationFrame(turn) : 0;
+    };
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      var r = eye.getBoundingClientRect();
+      if (!r.width) return; // кабинет скрыт (открыто «Избранное»)
+      var dx = e.clientX - (r.left + r.width / 2);
+      var dy = e.clientY - (r.top + r.height / 2);
+      if (dx * dx + dy * dy < r.width * r.width * 0.04) return; // курсор прямо на зрачке — не дёргаемся
+      target = Math.atan2(dy, dx) * 180 / Math.PI - PUPIL;
+      if (!frame) frame = requestAnimationFrame(turn);
+    }, { passive: true });
+  }
 
   /* ------------------------------------------------------------------
      Старт

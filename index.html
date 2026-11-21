@@ -55,22 +55,26 @@
 
   <main>
     <!-- ============ HERO: сейчас белый фон, потом здесь будет видео ============ -->
-    <section class="hero" aria-label="Поиск по магазину">
+    <section class="hero" aria-label="Главный экран">
       <div class="frame hero__frame">
         <!--
           Видео: положите файл в assets/video/hero.mp4 и раскомментируйте строку ниже.
           <video class="hero__video" src="assets/video/hero.mp4" autoplay muted loop playsinline></video>
         -->
-        <form class="search abs" id="search-form" role="search">
-          <label class="visually-hidden" for="search-input">Поиск</label>
-          <input class="search__input" id="search-input" name="q" type="search"
-                 placeholder="Альбом, исполнитель или жанр" autocomplete="off">
-          <button class="search__btn" type="submit" aria-label="Найти">
-            <img src="assets/img/search-btn.png" alt="Поиск">
-          </button>
-        </form>
       </div>
     </section>
+
+    <!-- ============ ПОИСК: маленькая кнопка в правом нижнем углу экрана.
+         По нажатию поле выезжает влево, после поиска сворачивается обратно
+         и дальше едет вместе со страницей полупрозрачным ============ -->
+    <form class="float-search" id="search-form" role="search" data-float-search>
+      <label class="visually-hidden" for="search-input">Поиск</label>
+      <input class="float-search__input" id="search-input" name="q" type="search"
+             placeholder="Альбом, исполнитель или жанр" autocomplete="off" tabindex="-1">
+      <button class="float-search__btn" type="submit" aria-label="Открыть поиск" aria-expanded="false" aria-controls="search-input">
+        <img src="assets/img/search-btn.png" alt="">
+      </button>
+    </form>
 
     <!-- ============ ЖАНРЫ ============ -->
     <section class="genres" aria-label="Жанры">
@@ -361,5 +365,6 @@
 
 <script src="js/products.js"></script>
 <script src="js/main.js"></script>
+<script src="js/music.js"></script>
 </body>
 </html>
